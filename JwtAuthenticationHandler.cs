@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
@@ -24,8 +25,17 @@ public class JwtAuthenticationHandler : AuthenticationHandler<AuthenticationSche
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         var authorization = Request.Headers.Authorization.ToString();
-        return string.IsNullOrWhiteSpace(authorization)
-            ? Task.FromResult(AuthenticateResult.NoResult())
-            : Task.FromResult(_jwtService.ValidateJwt(authorization));
+
+        if (string.IsNullOrWhiteSpace(authorization))
+            return Task.FromResult(Failure());
+
+        return _jwtService.ValidateJwt(authorization, out var jwtPrincipal)
+            ? Task.FromResult(Success(jwtPrincipal))
+            : Task.FromResult(Failure());
+
+        AuthenticateResult Success(ClaimsPrincipal principal) =>
+            AuthenticateResult.Success(new AuthenticationTicket(principal, JwtSettings.SchemeName));
+
+        AuthenticateResult Failure() => AuthenticateResult.Fail("Failed to validate JWT");
     }
 }

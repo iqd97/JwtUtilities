@@ -1,7 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Tokens;
 
 namespace JwtUtilities;
@@ -27,13 +26,13 @@ public class JwtService
         );
     }
 
-    public AuthenticateResult ValidateJwt(string authorizationHeaderValue)
+    public bool ValidateJwt(string authorizationHeaderValue, out ClaimsPrincipal principal)
     {
         var token = authorizationHeaderValue["Bearer ".Length..].Trim();
 
         try
         {
-            var principal = new JwtSecurityTokenHandler().ValidateToken(
+            principal = new JwtSecurityTokenHandler().ValidateToken(
                 token,
                 new TokenValidationParameters
                 {
@@ -46,14 +45,14 @@ public class JwtService
                 },
                 out _
             );
-            var ticket = new AuthenticationTicket(principal, JwtSettings.SchemeName);
-
-            return AuthenticateResult.Success(ticket);
         }
         catch
         {
-            return AuthenticateResult.Fail("Failed to validate JWT");
+            principal = null;
+            return false;
         }
+
+        return true;
     }
 
     private SymmetricSecurityKey GetSigningKey()
