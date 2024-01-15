@@ -58,7 +58,7 @@ public class JwtService
 
     private SymmetricSecurityKey GetSigningKey()
     {
-        return new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_settings.SigningKeySecret));
+        return new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.SigningKeySecret));
     }
 
     private SigningCredentials GetSigningCredentials()
