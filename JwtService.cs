@@ -27,7 +27,7 @@ public class JwtService
         );
     }
 
-    public Task<AuthenticateResult> ValidateJwt(string authorizationHeaderValue)
+    public AuthenticateResult ValidateJwt(string authorizationHeaderValue)
     {
         var token = authorizationHeaderValue["Bearer ".Length..].Trim();
 
@@ -48,11 +48,11 @@ public class JwtService
             );
             var ticket = new AuthenticationTicket(principal, JwtSettings.SchemeName);
 
-            return Task.FromResult(AuthenticateResult.Success(ticket));
+            return AuthenticateResult.Success(ticket);
         }
         catch
         {
-            return Task.FromResult(AuthenticateResult.Fail("Failed to validate JWT"));
+            return AuthenticateResult.Fail("Failed to validate JWT");
         }
     }
 

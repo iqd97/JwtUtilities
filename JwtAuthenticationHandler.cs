@@ -26,6 +26,6 @@ public class JwtAuthenticationHandler : AuthenticationHandler<AuthenticationSche
         var authorization = Request.Headers.Authorization.ToString();
         return string.IsNullOrWhiteSpace(authorization)
             ? Task.FromResult(AuthenticateResult.NoResult())
-            : _jwtService.ValidateJwt(authorization);
+            : Task.FromResult(_jwtService.ValidateJwt(authorization));
     }
 }
